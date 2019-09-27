@@ -1,0 +1,31 @@
+- hosts: all
+  become: yes
+  tasks: 
+    - name: Install pip3
+      apt: 
+        name: python3-pip
+        update_cache: yes
+        state: present
+
+    - name: install pip docker package
+      pip: name=docker
+
+    - name: Ensure docker deamon is running
+      service:
+        name: docker
+        state: started
+      become: true
+
+    - name: pull distcc docker image
+      docker_image:
+        name: andrewozhegov/distcc:latest
+
+    - name: run distccd in docker
+      docker_container:
+        name: distcc
+        image: andrewozhegov/distcc:latest
+        detach: yes
+        auto_remove: yes
+        ports:
+         - "3632:3632"
+      
